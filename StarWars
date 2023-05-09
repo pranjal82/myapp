@@ -1,0 +1,106 @@
+import 'dart:convert';
+
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: Homepage(),
+    );
+  }
+}
+
+Map mapResponse='' as Map;
+List listresponse=List.empty();
+class Homepage extends StatefulWidget {
+  @override
+  _HomepageState createState() => _HomepageState();
+}
+
+class _HomepageState extends State<Homepage> {
+
+  Future<void> apicall() async {
+    http.Response response = await http.get(Uri.parse("https://swapi.dev/api/people/"));
+    if (response.statusCode == 200) {
+      setState(() {
+        mapResponse = json.decode(response.body);
+        listresponse=mapResponse['results'];
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    apicall();
+  }
+
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Star Wars Characters"),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: listresponse == null
+            ? Center(child: CircularProgressIndicator())
+            : ListView.builder(
+          itemCount: listresponse.length,
+          itemBuilder: (context, index) {
+            return Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      listresponse[index]['name'].toString(),
+                      style: TextStyle(
+                        fontSize: 20.0,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(height: 8.0),
+
+                    Text(
+                      'Height: ${listresponse[index]['height']}',
+                      style: TextStyle(fontSize: 16.0),
+                    ),
+                    SizedBox(height: 4.0),
+                    Text(
+                      'Mass: ${listresponse[index]['mass']}',
+                      style: TextStyle(fontSize: 16.0),
+                    ),
+                    SizedBox(height: 4.0),
+                    Text(
+                      'Hair color: ${listresponse[index]['hair_color']}',
+                      style: TextStyle(fontSize: 16.0),
+                    ),
+                    SizedBox(height: 4.0),
+                    Text(
+                      'Skin color: ${listresponse[index]['skin_color']}',
+                      style: TextStyle(fontSize: 16.0),
+                    ),
+
+                    SizedBox(height: 4.0),
+                    Text(
+                      'films: ${listresponse[index]['films']}',
+                      style: TextStyle(fontSize: 16.0),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
