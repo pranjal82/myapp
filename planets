@@ -1,0 +1,104 @@
+
+import 'dart:convert';
+
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: Homepage(),
+    );
+  }
+}
+
+Map mapResponse = {} as Map;
+List listresponse = [];
+
+class Homepage extends StatefulWidget {
+  @override
+  _HomepageState createState() => _HomepageState();
+}
+
+class _HomepageState extends State<Homepage> {
+  Future<void> apiCall() async {
+    http.Response response = await http.get(Uri.parse("https://swapi.dev/api/planets/"));
+    if (response.statusCode == 200) {
+      setState(() {
+        mapResponse = json.decode(response.body);
+        listresponse = mapResponse['results'];
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    apiCall();
+  }
+
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Star Wars Planets"),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: listresponse.isEmpty
+            ? Center(child: CircularProgressIndicator())
+            : ListView.builder(
+          itemCount: listresponse.length,
+          itemBuilder: (context, index) {
+            return Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      listresponse[index]['name'].toString(),
+                      style: TextStyle(
+                        fontSize: 20.0,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(height: 8.0),
+                    Text("Rotation period: " +
+                        listresponse[index]['rotation_period'].toString()),
+                    SizedBox(height: 8.0),
+                    Text("Orbital period: " +
+                        listresponse[index]['orbital_period'].toString()),
+                    SizedBox(height: 8.0),
+                    Text("Diameter: " +
+                        listresponse[index]['diameter'].toString()),
+                    SizedBox(height: 8.0),
+                    Text("Climate: " +
+                        listresponse[index]['climate'].toString()),
+                    SizedBox(height: 8.0),
+                    Text("Gravity: " +
+                        listresponse[index]['gravity'].toString()),
+                    SizedBox(height: 8.0),
+                    Text("Terrain: " +
+                        listresponse[index]['terrain'].toString()),
+                    SizedBox(height: 8.0),
+                    Text("Surface water: " +
+                        listresponse[index]['surface_water'].toString()),
+                    SizedBox(height: 8.0),
+                    Text("Population: " +
+                        listresponse[index]['population'].toString()),
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
